@@ -1,7 +1,7 @@
 require_relative '../models/address_book'
 
 class MenuController
-  attr_reader :address_book
+  attr_accessor :address_book
 
   def initialize
     @address_book = AddressBook.first
