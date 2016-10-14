@@ -14,6 +14,10 @@ class MenuController
     puts "3 - Search for an entry"
     puts "4 - Import entries from a CSV"
     puts "5 - Exit"
+
+    puts "#{Entry.get_min}"
+    puts "#{Entry.get_max}"
+
     print "Enter your selection: "
 
     selection = gets.to_i
