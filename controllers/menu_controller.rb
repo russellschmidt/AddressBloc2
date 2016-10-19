@@ -8,7 +8,7 @@ class MenuController
   end
 
   def main_menu
-    puts "#{@address_book.name} Address Book Selected\n#{address_book.entries.count} entries"
+    puts "#{@address_book.name} Address Book Selected\n#{@address_book.entries.count} entries"
     puts "0 - Switch AddressBook"
     puts "1 - View all entries"
     puts "2 - Create an entry"
@@ -55,16 +55,18 @@ class MenuController
   def select_address_book_menu
     puts "Select an Address Book:"
     AddressBook.all.each_with_index do |address_book, index|
-      puts "#{index} - #{address_book.name}"
+      puts "#{index + 1} - #{address_book.name}"
     end
 
     index = gets.chomp.to_i
-
+    
     @address_book = AddressBook.find(index)
-    system "clear"
+    system "clear" 
+
     return if @address_book
     puts "Please select a valid index"
     select_address_book_menu
+
   end
 
 
@@ -103,7 +105,7 @@ class MenuController
   def search_entries
     print "Search by name: "
     name = gets.chomp
-    match = @address_book.find_by(:name, name)
+    match = @address_book.find_entry(name)
     system "clear"
     if match
       puts match.to_s
