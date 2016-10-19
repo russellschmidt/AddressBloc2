@@ -9,10 +9,12 @@ class AddressBook < BlocRecord::Base
   end
 
   def entries
+    # returns all the entries
     Entry.where(address_book_id: self.id)
   end
 
   def find_entry(name)
+    # returns the first name match
     Entry.where(name: name, address_book_id: self.id).first
   end
 
