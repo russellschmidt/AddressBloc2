@@ -8,7 +8,8 @@ class MenuController
   end
 
   def main_menu
-    puts "#{@address_book.name} Address Book - #{Entry.count} entries"
+    puts "#{@address_book.name} Address Book Selected\n#{@address_book.entries.count} entries"
+    puts "0 - Switch AddressBook"
     puts "1 - View all entries"
     puts "2 - Create an entry"
     puts "3 - Search for an entry"
@@ -20,6 +21,10 @@ class MenuController
     selection = gets.to_i
 
     case selection
+      when 0
+        system "clear"
+        select_address_book_menu
+        main_menu
       when 1
         system "clear"
         view_all_entries
@@ -46,11 +51,86 @@ class MenuController
     end
   end
 
+
+  def select_address_book_menu
+    puts "Select an Address Book:"
+    AddressBook.all.each_with_index do |address_book, index|
+      puts "#{index + 1} - #{address_book.name}"
+    end
+
+    index = gets.chomp.to_i
+    
+    @address_book = AddressBook.find(index)
+    system "clear" 
+
+    return if @address_book
+    puts "Please select a valid index"
+    select_address_book_menu
+
+  end
+
+
   def view_all_entries
-    Entry.all.each do |entry|
+    puts "How would you like your chicken mcdeath?"
+    puts "1 - Not ordered"
+    puts "2 - Ascending order by name"
+    puts "3 - Descending order by name"
+    puts "4 - Ascending order by phone number"
+    puts "5 - Descending order by phone number"
+    puts "6 - Ascending order by email"
+    puts "7 - Descending order by email"
+
+    selection = gets.to_i
+
+    case selection
+    when 1
+      @address_book.entries.each do |entry|
+        system "clear"
+        puts entry.to_s
+        entry_submenu(entry)
+      end
+    when 2
+      @address_book.entries_by_name_asc.each do |entry|
+        system "clear"
+        puts entry.to_s
+        entry_submenu(entry)
+      end
+    when 3
+      @address_book.entries_by_name_desc.each do |entry|
+        system "clear"
+        puts entry.to_s
+        entry_submenu(entry)
+      end
+    when 4
+      @address_book.entries_by_phone_asc.each do |entry|
+        system "clear"
+        puts entry.to_s
+        entry_submenu(entry)
+      end
+    when 5
+      @address_book.entries_by_phone_desc.each do |entry|
+        system "clear"
+        puts entry.to_s
+        entry_submenu(entry)
+      end
+    when 6
+      @address_book.entries_by_email_asc.each do |entry|
+        system "clear"
+        puts entry.to_s
+        entry_submenu(entry)
+      end
+    when 7  
+      @address_book.entries_by_email_desc.each do |entry|
+        system "clear"
+        puts entry.to_s
+        entry_submenu(entry)
+      end
+    when ''
       system "clear"
-      puts entry.to_s
-      entry_submenu(entry)
+      main_menu
+    else
+      system "Invalid choice"
+      view_all_entries
     end
 
     system "clear"
@@ -81,7 +161,7 @@ class MenuController
   def search_entries
     print "Search by name: "
     name = gets.chomp
-    match = Entry.find_by(:name, name)
+    match = @address_book.find_entry(name)
     system "clear"
     if match
       puts match.to_s
