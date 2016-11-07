@@ -1,19 +1,20 @@
 require_relative '../models/address_book'
 
 class MenuController
-  attr_reader :address_book
+  attr_accessor :address_book
 
   def initialize
-    @address_book = AddressBook.new
+    @address_book = AddressBook.first
   end
 
   def main_menu
-    puts "Main Menu - #{address_book.entries.count} entries"
+    puts "#{@address_book.name} Address Book - #{Entry.count} entries"
     puts "1 - View all entries"
     puts "2 - Create an entry"
     puts "3 - Search for an entry"
     puts "4 - Import entries from a CSV"
     puts "5 - Exit"
+
     print "Enter your selection: "
 
     selection = gets.to_i
@@ -46,7 +47,7 @@ class MenuController
   end
 
   def view_all_entries
-    address_book.entries.each do |entry|
+    Entry.all.each do |entry|
       system "clear"
       puts entry.to_s
       entry_submenu(entry)
@@ -59,14 +60,19 @@ class MenuController
   def create_entry
     system "clear"
     puts "New AddressBloc Entry"
-    print "Name: "
-    name = gets.chomp
-    print "Phone number: "
-    phone = gets.chomp
-    print "Email: "
-    email = gets.chomp
 
-    address_book.add_entry(name, phone, email)
+    name = get_new_name
+    phone_number = get_new_phone
+    email = get_new_email
+
+    # print "Name: "
+    # name = gets.chomp
+    # print "Phone number: "
+    # phone = gets.chomp
+    # print "Email: "
+    # email = gets.chomp
+
+    address_book.add_entry(name, phone_number, email)
 
     system "clear"
     puts "New entry created"
@@ -75,7 +81,7 @@ class MenuController
   def search_entries
     print "Search by name: "
     name = gets.chomp
-    match = address_book.binary_search(name)
+    match = Entry.find_by(:name, name)
     system "clear"
     if match
       puts match.to_s
@@ -136,15 +142,24 @@ class MenuController
   end
 
   def edit_entry(entry)
-    print "Updated name: "
-    name = gets.chomp
-    print "Updated phone number: "
-    phone_number = gets.chomp
-    print "Updated email: "
-    email = gets.chomp
+    name = get_updated_name
+    phone_number = get_updated_phone
+    email = get_updated_email
+
     entry.name = name if !name.empty?
     entry.phone_number = phone_number if !phone_number.empty?
     entry.email = email if !email.empty?
+
+    # print "Updated name: "
+    # name = gets.chomp
+    # print "Updated phone number: "
+    # phone_number = gets.chomp
+    # print "Updated email: "
+    # email = gets.chomp
+    # entry.name = name if !name.empty?
+    # entry.phone_number = phone_number if !phone_number.empty?
+    # entry.email = email if !email.empty?
+
     system "clear"
     puts "Updated entry:"
     puts entry
@@ -175,5 +190,124 @@ class MenuController
         search_submenu(entry)
     end
   end
-end
 
+  def get_new_name
+    name_ok = false
+    name = 'Bob McRoberts'
+
+    until (name_ok)
+      print "Name ('firstname lastname'): "
+      name = gets.chomp
+      if name == ""
+        puts "Please enter a name."
+        name_ok = false
+      elsif name.length < 2
+        puts "Please enter a valid name of more than one character"
+      elsif name.match(/\A[^0-9`!@#\$%\^&*+_=]+\z/) != nil
+        name_ok = true
+      else
+        puts "Please enter a name using valid characters."
+      end
+    end
+    name
+  end
+
+
+  def get_updated_name
+    name_ok = false
+    name = 'Bob McRoberts'
+
+    until (name_ok)
+      print "Name ('firstname lastname'): "
+      name = gets.chomp
+      if name.match(/\A[^0-9`!@#\$%\^&*+_=]+\z/) != nil || name.empty?
+        name_ok = true
+      elsif name.length < 2
+        puts "Please enter a valid name of more than one character"
+      else
+        puts "Please enter a name using valid characters"
+      end
+    end
+    name
+  end
+
+  def get_new_phone
+    phone_ok = false
+    phone = '212-555-1000'
+    until (phone_ok)
+      print "Phone number (example: 212-555-1000): "
+      phone = gets.chomp
+      # enforce 10 number 2 dash ###-###-#### format though ########### is ok
+      # also #11 is reserved for emergency services
+      if phone.match(/\d11-?\d{3}-?\d{4}/) != nil || phone.match(/\d{3}-?\d11-?\d{4}/) != nil
+        puts "#{phone} does not seem like a valid number. Be sure to use ###-###-#### format. Please try again."
+      # N.Am. area codes cant start with 0, 1. CO code can't start with 0, 1.
+      elsif phone.index(/[2-9]\d{2}-?[2-9]\d{2}-?\d{4}/) == 0
+        phone_ok = true
+      else
+        puts "Must be in XXX-XXX-XXXX format"
+      end
+    end
+    phone
+  end
+
+
+  def get_updated_phone
+    phone_ok = false
+    phone = '212-555-1000'
+    until (phone_ok)
+      print "Updated phone number (example: 212-555-1000): "
+      phone = gets.chomp
+      # enforce 10 number 2 dash ###-###-#### format though ########### is ok
+      # also #11 is reserved for emergency services
+      if phone.match(/\d11-?\d{3}-?\d{4}/) != nil || phone.match(/\d{3}-?\d11-?\d{4}/) != nil
+        puts "#{phone} does not seem like a valid number. Please try again."
+      # N.Am. area codes cant start with 0, 1. CO code can't start with 0, 1.
+      elsif phone.index(/[2-9]\d{2}-?[2-9]\d{2}-?\d{4}/) == 0
+        phone_ok = true
+      elsif phone.empty?
+        phone_ok = true
+      else
+        puts "Must be in XXX-XXX-XXXX format"
+      end
+    end
+    phone
+  end
+
+  def get_new_email
+    email_ok = false
+    email = 'boberts@example.com'
+    
+    until (email_ok)
+      print "Email: "
+      email = gets.chomp
+      # Regex found online. Just letters, numbers, underscore, dash and dot in the username.
+      if email.match(/\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i) != nil
+        email_ok = true
+      else
+        puts "Please enter a valid email in username@domain.tld format"
+      end
+    end
+    email
+  end
+
+
+  def get_updated_email
+    email_ok = false
+    email = 'boberts@example.com'
+
+    until (email_ok)
+      print "Updated email: "
+      email = gets.chomp
+      if email.match(/\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i) != nil
+        email_ok = true
+      elsif email.empty? 
+        email_ok = true
+      else
+        puts "Please enter a valid email in username@domain.topleveldomain format"
+      end
+    end
+    email
+  end
+
+end
