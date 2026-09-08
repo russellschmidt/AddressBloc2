@@ -217,32 +217,32 @@ class MenuController
   end
 
   def delete_entry(entry)
-    address_book.entries.delete(entry)
+    address_book.delete(entry)
     puts "#{entry.name} has been deleted"
   end
 
   def edit_entry(entry)
-    name = get_updated_name
-    phone_number = get_updated_phone
-    email = get_updated_email
+    updates = {}
 
-    entry.name = name if !name.empty?
-    entry.phone_number = phone_number if !phone_number.empty?
-    entry.email = email if !email.empty?
+    print "Updated name: "
+    name = gets.chomp
+    updates[:name] = name unless name.empty?
 
-    # print "Updated name: "
-    # name = gets.chomp
-    # print "Updated phone number: "
-    # phone_number = gets.chomp
-    # print "Updated email: "
-    # email = gets.chomp
-    # entry.name = name if !name.empty?
-    # entry.phone_number = phone_number if !phone_number.empty?
-    # entry.email = email if !email.empty?
+    print "Updated phone number: "
+    phone_number = gets.chomp
+    updates[:phone_number] = phone_number unless phone_number.empty?
+
+    print "Updated email: "
+    email = gets.chomp
+
+    updates[:email] = email unless email.empty?
+
+    entry.update_attributes(updates)
 
     system "clear"
-    puts "Updated entry:"
-    puts entry
+    puts "Updated entry: "
+
+    puts Entry.find(entry.id)
   end
 
   def search_submenu(entry)

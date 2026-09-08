@@ -56,4 +56,8 @@ class AddressBook < BlocRecord::Base
     end
   end
 
+  def delete(entry)
+    Entry.destroy(entry.id)
+  end
+
 end
